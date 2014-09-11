@@ -194,6 +194,12 @@ namespace Thinktecture.IdentityServer.Protocols.AdfsIntegration
             registry.AddTrustedIssuer(_configuration.AdfsIntegration.IssuerThumbprint, "ADFS");
             configuration.IssuerNameRegistry = registry;
 
+            if (_configuration.Keys.DecryptionCertificate != null)
+            {
+                configuration.ServiceTokenResolver = SecurityTokenResolver.CreateDefaultSecurityTokenResolver(
+                         new ReadOnlyCollection<SecurityToken>(new SecurityToken[] { new X509SecurityToken(_configuration.Keys.DecryptionCertificate) }), false);
+            }
+
             var handler = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection(configuration);
             var identity = handler.ValidateToken(securityToken).First();
             return identity;
